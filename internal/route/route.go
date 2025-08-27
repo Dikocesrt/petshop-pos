@@ -3,6 +3,7 @@ package route
 import (
 	"petshop-pos/internal/handler"
 	"petshop-pos/internal/middleware"
+	"petshop-pos/internal/repository"
 
 	"petshop-pos/internal/service"
 
@@ -13,6 +14,7 @@ type RouteConfig struct {
     App               *gin.Engine
     JWTService        service.JWTService
     AuthHandler       *handler.AuthHandler
+    TenantRepository  repository.TenantRepository
 }
 
 func (c *RouteConfig) Setup() {

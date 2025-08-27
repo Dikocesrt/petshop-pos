@@ -27,6 +27,8 @@ func Bootstrap(config *BootstrapConfig) {
 
     userRepo := repository.NewUserRepository(config.DB)
 
+    tenantRepo := repository.NewTenantRepository(config.DB)
+
     authService := service.NewAuthService(userRepo, jwtService, config.Validate)
     authHandler := handler.NewAuthHandler(authService)
 
@@ -34,6 +36,7 @@ func Bootstrap(config *BootstrapConfig) {
         App:        config.App,
         JWTService: jwtService,
         AuthHandler: authHandler,
+        TenantRepository: tenantRepo, //temporary
     }
 
 	routeConfig.Setup()

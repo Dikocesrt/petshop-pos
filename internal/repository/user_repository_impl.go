@@ -12,6 +12,7 @@ type UserRepositoryIMPL struct {
 }
 
 func NewUserRepository(db *gorm.DB) *UserRepositoryIMPL {
+    db.AutoMigrate(&entity.User{})
     return &UserRepositoryIMPL{db: db}
 }
 

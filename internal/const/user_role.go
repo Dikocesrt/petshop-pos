@@ -1,4 +1,4 @@
-package userroleconst
+package constant
 
 type UserRole string
 

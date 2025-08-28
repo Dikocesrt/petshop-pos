@@ -7,14 +7,14 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-    AccessToken  string       `json:"access_token"`
-    RefreshToken string       `json:"refresh_token"`
+    AccessToken  string       `json:"accessToken"`
+    RefreshToken string       `json:"refreshToken"`
 }
 
 type RefreshTokenRequest struct {
-    RefreshToken string `json:"refresh_token" validate:"required"`
+    RefreshToken string `json:"refreshToken" validate:"required"`
 }
 
 type RefreshTokenResponse struct {
-    AccessToken string `json:"access_token"`
+    AccessToken string `json:"accessToken"`
 }

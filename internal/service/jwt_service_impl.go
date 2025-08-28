@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
 )
 
 type JWTServiceImpl struct {
@@ -22,9 +21,9 @@ type TokenPair struct {
 }
 
 type Claims struct {
-    UserID     uuid.UUID `json:"user_id"`
-    TenantName string    `json:"tenant_name"`
-    UserRole   string    `json:"user_role"`
+    UserID     string `json:"user_id"`
+    TenantName string `json:"tenant_name"`
+    UserRole   string `json:"user_role"`
     jwt.RegisteredClaims
 }
 
@@ -37,7 +36,7 @@ func NewJWTService(accessSecret, refreshSecret string, accessTTL, refreshTTL tim
     }
 }
 
-func (j *JWTServiceImpl) GenerateTokenPair(userID uuid.UUID, tenantName string, userRole string) (*TokenPair, *exception.Exception) {
+func (j *JWTServiceImpl) GenerateTokenPair(userID string, tenantName string, userRole string) (*TokenPair, *exception.Exception) {
     // Generate Access Token Claims
     accessClaims := &Claims{
         UserID:     userID,

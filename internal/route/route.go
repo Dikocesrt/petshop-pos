@@ -3,7 +3,6 @@ package route
 import (
 	"petshop-pos/internal/handler"
 	"petshop-pos/internal/middleware"
-	"petshop-pos/internal/repository"
 
 	"petshop-pos/internal/service"
 
@@ -14,7 +13,9 @@ type RouteConfig struct {
     App               *gin.Engine
     JWTService        service.JWTService
     AuthHandler       *handler.AuthHandler
-    TenantRepository  repository.TenantRepository
+    BrandHandler      *handler.BrandHandler
+    CategoryHandler   *handler.CategoryHandler
+    ProductHandler    *handler.ProductHandler
 }
 
 func (c *RouteConfig) Setup() {
@@ -42,11 +43,34 @@ func (c *RouteConfig) SetupGuestRoute() {
     protected := api.Group("")
     protected.Use(middleware.JWTMiddleware(c.JWTService))
     {
-        protected.GET("/auth-health", func(ctx *gin.Context) {
-            ctx.JSON(200, gin.H{
-                "status": "OK",
-                "message": "Service is healthy",
-            })
-        })
+        // Brand routes
+        brand := protected.Group("/brands")
+        {
+            brand.POST("/", c.BrandHandler.CreateBrand)
+            brand.GET("/:id", c.BrandHandler.GetByID)
+            brand.GET("/", c.BrandHandler.GetAll)
+            brand.PUT("/:id", c.BrandHandler.Update)
+            brand.DELETE("/:id", c.BrandHandler.Delete)
+        }
+
+        // Category routes
+        category := protected.Group("/categories")
+        {
+            category.POST("/", c.CategoryHandler.CreateCategory)
+            category.GET("/:id", c.CategoryHandler.GetByID)
+            category.GET("/", c.CategoryHandler.GetAll)
+            category.PUT("/:id", c.CategoryHandler.Update)
+            category.DELETE("/:id", c.CategoryHandler.Delete)
+        }
+
+        // Product routes
+        product := protected.Group("/products")
+        {
+            product.POST("/", c.ProductHandler.Create)
+            product.GET("/:id", c.ProductHandler.GetByID)
+            product.GET("/", c.ProductHandler.GetAll)
+            product.PUT("/:id", c.ProductHandler.Update)
+            product.DELETE("/:id", c.ProductHandler.Delete)
+        }
     }
 }

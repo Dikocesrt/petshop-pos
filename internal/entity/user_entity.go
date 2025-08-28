@@ -1,26 +1,28 @@
 package entity
 
 import (
-	userroleconst "petshop-pos/internal/const"
-	"time"
-
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type User struct {
-    ID          uuid.UUID      `gorm:"type:uuid;primaryKey;default:gen_random_uuid();column:id"`
-    Name        string         `gorm:"type:varchar(255);not null;column:name"`
-    Username    string         `gorm:"type:varchar(255);not null;column:username;unique"`
-    Password    string         `gorm:"type:varchar(255);not null;column:password"`
-    PhoneNumber string         `gorm:"type:varchar(255);column:phone_number"`
-    Role        userroleconst.UserRole `gorm:"type:varchar(255);not null;column:role"`
-    TenantID    uuid.UUID      `gorm:"type:uuid;not null;column:tenant_id"`
-    CreatedAt   time.Time      `gorm:"autoCreateTime;column:created_at"`
-    UpdatedAt   time.Time      `gorm:"autoUpdateTime;column:updated_at"`
-    DeletedAt   gorm.DeletedAt `gorm:"index;column:deleted_at"`
+    ID          string `gorm:"type:char(36);primaryKey;default:(UUID())"`
+    Name        string `gorm:"type:varchar(255);not null"`
+    Username    string `gorm:"type:varchar(255);not null;unique"`
+    Password    string `gorm:"type:varchar(255);not null"`
+    PhoneNumber string `gorm:"type:varchar(255)"`
+    Role        string `gorm:"type:varchar(255);not null"`
+    TenantID    string `gorm:"type:char(36);not null;index"`
+    Tenant      Tenant `gorm:"foreignKey:TenantID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+    gorm.Model
 }
 
 func (User) TableName() string {
     return "users"
+}
+
+func (u *User) BeforeCreate(tx *gorm.DB) error {
+    if u.ID == "" {
+        tx.Statement.SetColumn("id", gorm.Expr("UUID()"))
+    }
+    return nil
 }

@@ -10,7 +10,7 @@ import (
 type BaseSuccessResponse struct {
     Status  string `json:"status"`
     Message string `json:"message"`
-    Data    any    `json:"data"`
+    Data    any    `json:"data,omitempty"`
 }
 
 // BaseMetadataSuccessResponse is the standard response for successful requests with pagination metadata.
@@ -18,7 +18,7 @@ type BaseMetadataSuccessResponse struct {
     Status   string   `json:"status"`
     Message  string   `json:"message"`
     Metadata Metadata `json:"metadata"`
-    Data     any      `json:"data"`
+    Data     any      `json:"data,omitempty"`
 }
 
 // BaseErrorResponse is the standard response for failed requests.
@@ -31,6 +31,8 @@ type BaseErrorResponse struct {
 type Metadata struct {
     Page  int `json:"page"`
     Limit int `json:"limit"`
+    Total int `json:"total"`
+    TotalPages int `json:"totalPages"`
 }
 
 // GetOffset returns the offset for pagination.
@@ -84,6 +86,42 @@ func NewErrorResponseFromException(e *exception.Exception) BaseErrorResponse {
         Status:  "fail",
         Message: e.Message.(string),
     }
+}
+
+func CalculateTotalPages(total, limit int) int {
+    if limit <= 0 {
+        return 0
+    }
+    
+    if total == 0 {
+        return 0
+    }
+    
+    totalPages := total / limit
+    if total%limit > 0 {
+        totalPages++
+    }
+    
+    return totalPages
+}
+
+func ValidateAndConvertPagination(page, limit string) (int, int) {
+    pageInt, err := strconv.Atoi(page)
+    if err != nil || pageInt <= 0 {
+        pageInt = 1
+    }
+
+    limitInt, err := strconv.Atoi(limit)
+    if err != nil || limitInt <= 0 {
+        limitInt = 10
+    }
+
+    // Optional: Set maximum limit to prevent abuse
+    if limitInt > 100 {
+        limitInt = 100
+    }
+
+    return pageInt, limitInt
 }
 
 func MapExceptionToHTTP(e *exception.Exception) (int, BaseErrorResponse) {

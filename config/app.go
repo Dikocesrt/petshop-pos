@@ -23,7 +23,7 @@ type BootstrapConfig struct {
 }
 
 func Bootstrap(config *BootstrapConfig) {
-    jwtService := service.NewJWTService(config.Config.GetString("ACCESS_JWT_SECRET"), config.Config.GetString("REFRESH_JWT_SECRET"), time.Hour*24, time.Hour*24*7)
+    jwtService := service.NewJWTService(config.Config.GetString("ACCESS_JWT_SECRET"), config.Config.GetString("REFRESH_JWT_SECRET"), time.Minute*10, time.Hour*24)
 
     userRepo := repository.NewUserRepository(config.DB)
 
@@ -32,11 +32,25 @@ func Bootstrap(config *BootstrapConfig) {
     authService := service.NewAuthService(userRepo, jwtService, config.Validate)
     authHandler := handler.NewAuthHandler(authService)
 
+    brandRepo := repository.NewBrandRepository(config.DB)
+    brandService := service.NewBrandService(brandRepo, config.Validate, tenantRepo)
+    brandHandler := handler.NewBrandHandler(brandService)
+
+    categoryRepo := repository.NewCategoryRepository(config.DB)
+    categoryService := service.NewCategoryService(categoryRepo, config.Validate, tenantRepo)
+    categoryHandler := handler.NewCategoryHandler(categoryService)
+
+    productRepo := repository.NewProductRepository(config.DB)
+    productService := service.NewProductService(productRepo, config.Validate, tenantRepo)
+    productHandler := handler.NewProductHandler(productService)
+
     routeConfig := route.RouteConfig{
         App:        config.App,
         JWTService: jwtService,
         AuthHandler: authHandler,
-        TenantRepository: tenantRepo, //temporary
+        BrandHandler: brandHandler,
+        CategoryHandler: categoryHandler,
+        ProductHandler: productHandler,
     }
 
 	routeConfig.Setup()

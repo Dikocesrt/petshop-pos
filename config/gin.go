@@ -32,11 +32,23 @@ func InitGin(viperConfig *viper.Viper, log *slog.Logger) *gin.Engine {
     gin.SetMode(gin.ReleaseMode)
     r := gin.New()
     r.Use(gin.Recovery())
-    r.Use(cors.New(cors.Config{
-        AllowOrigins: origins,
-        AllowMethods: methods,
-        AllowHeaders: headers,
-    }))
+    
+    corsConfig := cors.Config{
+        AllowOrigins:     origins,
+        AllowMethods:     methods,
+        AllowHeaders:     headers,
+        ExposeHeaders:    []string{"Content-Length"},
+        AllowCredentials: false,
+        MaxAge:           12 * 3600,
+    }
+    
+    if len(origins) == 0 || (len(origins) == 1 && origins[0] == "*") {
+        corsConfig.AllowAllOrigins = true
+        corsConfig.AllowOrigins = nil
+    }
+    
+    r.Use(cors.New(corsConfig))
+
     return r
 }
 

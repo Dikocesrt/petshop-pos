@@ -32,6 +32,14 @@ func (c *RouteConfig) SetupGuestRoute() {
         })
     })
 
+    api.GET("/cors-test", func(c *gin.Context) {
+    c.JSON(200, gin.H{
+        "message": "CORS is working",
+        "origin":  c.Request.Header.Get("Origin"),
+        "method":  c.Request.Method,
+    })
+})
+
     // Auth routes
     auth := api.Group("/auth")
     {

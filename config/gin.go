@@ -4,7 +4,6 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
@@ -14,40 +13,34 @@ func InitGin(viperConfig *viper.Viper, log *slog.Logger) *gin.Engine {
     allowMethods := viperConfig.GetString("ALLOW_METHODS")
     allowHeaders := viperConfig.GetString("ALLOW_HEADERS")
 
-    origins := []string{}
-    if allowOrigins != "" {
-        origins = append(origins, splitAndTrim(allowOrigins)...)
-    }
-    methods := []string{}
-    if allowMethods != "" {
-        methods = append(methods, splitAndTrim(allowMethods)...)
-    }
-    headers := []string{}
-    if allowHeaders != "" {
-        headers = append(headers, splitAndTrim(allowHeaders)...)
-    }
-
-    log.Info("CORS Config", "origins", origins, "methods", methods, "headers", headers)
+    log.Info("Raw CORS Config from env", "origins", allowOrigins, "methods", allowMethods, "headers", allowHeaders)
 
     gin.SetMode(gin.ReleaseMode)
     r := gin.New()
     r.Use(gin.Recovery())
     
-    corsConfig := cors.Config{
-        AllowOrigins:     origins,
-        AllowMethods:     methods,
-        AllowHeaders:     headers,
-        ExposeHeaders:    []string{"Content-Length"},
-        AllowCredentials: false,
-        MaxAge:           12 * 3600,
-    }
-    
-    if len(origins) == 0 || (len(origins) == 1 && origins[0] == "*") {
-        corsConfig.AllowAllOrigins = true
-        corsConfig.AllowOrigins = nil
-    }
-    
-    r.Use(cors.New(corsConfig))
+    // Custom CORS middleware yang lebih eksplisit
+    r.Use(func(c *gin.Context) {
+        origin := c.Request.Header.Get("Origin")
+        
+        // Set CORS headers
+        c.Header("Access-Control-Allow-Origin", "*")
+        c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
+        c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization, X-Requested-With, X-CSRF-Token")
+        c.Header("Access-Control-Expose-Headers", "Content-Length")
+        c.Header("Access-Control-Allow-Credentials", "false")
+        c.Header("Access-Control-Max-Age", "43200") // 12 hours
+        
+        // Handle preflight requests
+        if c.Request.Method == "OPTIONS" {
+            log.Info("OPTIONS request received", "origin", origin, "path", c.Request.URL.Path)
+            c.AbortWithStatus(204)
+            return
+        }
+        
+        log.Info("Request received", "method", c.Request.Method, "origin", origin, "path", c.Request.URL.Path)
+        c.Next()
+    })
 
     return r
 }

@@ -66,3 +66,11 @@ func (r *categoryRepositoryImpl) Delete(ctx context.Context, id string, tenantID
     }
     return nil
 }
+
+func (r *categoryRepositoryImpl) IsCategoryExistsByIDAndTenantID(ctx context.Context, id string, tenantID string) (bool, *exception.Exception) {
+    var count int64
+    if err := r.db.WithContext(ctx).Model(&entity.Category{}).Where("id = ? AND tenant_id = ?", id, tenantID).Count(&count).Error; err != nil {
+        return false, exception.Internal("failed to check if category exists", err)
+    }
+    return count > 0, nil
+}

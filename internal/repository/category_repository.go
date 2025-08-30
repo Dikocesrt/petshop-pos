@@ -13,4 +13,5 @@ type CategoryRepository interface {
     FindAllByTenantID(ctx context.Context, page, limit int, tenantID string) ([]entity.Category, int64, *exception.Exception)
     Update(ctx context.Context, category *entity.Category) *exception.Exception
     Delete(ctx context.Context, id string, tenantID string) *exception.Exception
+    IsCategoryExistsByIDAndTenantID(ctx context.Context, id string, tenantID string) (bool, *exception.Exception)
 }

@@ -15,13 +15,17 @@ type ProductServiceImpl struct {
 	repo     repository.ProductRepository
 	validator *xvalidator.Validator
 	tenantRepo repository.TenantRepository
+	brandRepo repository.BrandRepository
+	categoryRepo repository.CategoryRepository
 }
 
-func NewProductService(repo repository.ProductRepository, validator *xvalidator.Validator, tenantRepo repository.TenantRepository) ProductService {
+func NewProductService(repo repository.ProductRepository, validator *xvalidator.Validator, tenantRepo repository.TenantRepository, brandRepo repository.BrandRepository, categoryRepo repository.CategoryRepository) ProductService {
 	return &ProductServiceImpl{
 		repo:     repo,
 		validator: validator,
 		tenantRepo: tenantRepo,
+		brandRepo: brandRepo,
+		categoryRepo: categoryRepo,
 	}
 }
 
@@ -35,6 +39,22 @@ func (s *ProductServiceImpl) Create(ctx context.Context, tenantName string, requ
 	tenantID, err := s.tenantRepo.FindIDByName(ctx, tenantName)
 	if err != nil {
 		return err
+	}
+
+	isBrandExist, err := s.brandRepo.IsBrandExistsByIDAndTenantID(ctx, *request.BrandID, tenantID)
+	if err != nil {
+		return err
+	}
+	if !isBrandExist {
+		return exception.NotFound("brand not found")
+	}
+
+	isCategoryExist, err := s.categoryRepo.IsCategoryExistsByIDAndTenantID(ctx, *request.CategoryID, tenantID)
+	if err != nil {
+		return err
+	}
+	if !isCategoryExist {
+		return exception.NotFound("category not found")
 	}
 
 	// to product entity
@@ -151,6 +171,22 @@ func (s *ProductServiceImpl) Update(ctx context.Context, id string, tenantName s
 	tenantID, err := s.tenantRepo.FindIDByName(ctx, tenantName)
 	if err != nil {
 		return nil, err
+	}
+
+	isBrandExist, err := s.brandRepo.IsBrandExistsByIDAndTenantID(ctx, *request.BrandID, tenantID)
+	if err != nil {
+		return nil, err
+	}
+	if !isBrandExist {
+		return nil, exception.NotFound("brand not found")
+	}
+
+	isCategoryExist, err := s.categoryRepo.IsCategoryExistsByIDAndTenantID(ctx, *request.CategoryID, tenantID)
+	if err != nil {
+		return nil, err
+	}
+	if !isCategoryExist {
+		return nil, exception.NotFound("category not found")
 	}
 
 	// check if product exists

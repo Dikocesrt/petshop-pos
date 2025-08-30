@@ -23,7 +23,7 @@ type BootstrapConfig struct {
 }
 
 func Bootstrap(config *BootstrapConfig) {
-    jwtService := service.NewJWTService(config.Config.GetString("ACCESS_JWT_SECRET"), config.Config.GetString("REFRESH_JWT_SECRET"), time.Minute*10, time.Hour*24)
+    jwtService := service.NewJWTService(config.Config.GetString("ACCESS_JWT_SECRET"), config.Config.GetString("REFRESH_JWT_SECRET"), time.Minute*10, time.Hour*1)
 
     userRepo := repository.NewUserRepository(config.DB)
 
@@ -41,7 +41,7 @@ func Bootstrap(config *BootstrapConfig) {
     categoryHandler := handler.NewCategoryHandler(categoryService)
 
     productRepo := repository.NewProductRepository(config.DB)
-    productService := service.NewProductService(productRepo, config.Validate, tenantRepo)
+    productService := service.NewProductService(productRepo, config.Validate, tenantRepo, brandRepo, categoryRepo)
     productHandler := handler.NewProductHandler(productService)
 
     routeConfig := route.RouteConfig{

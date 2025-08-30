@@ -66,3 +66,11 @@ func (r *brandRepositoryImpl) Delete(ctx context.Context, id string, tenantID st
     }
     return nil
 }
+
+func (r *brandRepositoryImpl) IsBrandExistsByIDAndTenantID(ctx context.Context, id string, tenantID string) (bool, *exception.Exception) {
+    var count int64
+    if err := r.db.WithContext(ctx).Model(&entity.Brand{}).Where("id = ? AND tenant_id = ?", id, tenantID).Count(&count).Error; err != nil {
+        return false, exception.Internal("failed to check if brand exists", err)
+    }
+    return count > 0, nil
+}

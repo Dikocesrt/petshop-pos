@@ -48,6 +48,7 @@ func (h *ProductHandler) GetByID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response.NewBaseSuccessResponse("Product retrieved successfully", product))
 }
+
 func (h *ProductHandler) GetAll(c *gin.Context) {
 	// query params
 	limit, page := c.Query("limit"), c.Query("page")

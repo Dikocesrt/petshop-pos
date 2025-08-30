@@ -13,4 +13,5 @@ type BrandRepository interface {
     FindAllByTenantID(ctx context.Context, tenantID string, page, limit int) ([]entity.Brand, int64, *exception.Exception)
     Update(ctx context.Context, brand *entity.Brand) *exception.Exception
     Delete(ctx context.Context, id string, tenantID string) *exception.Exception
+    IsBrandExistsByIDAndTenantID(ctx context.Context, id string, tenantID string) (bool, *exception.Exception)
 }

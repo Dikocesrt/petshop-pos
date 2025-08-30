@@ -21,7 +21,7 @@ func (r *TenantRepositoryImpl) FindIDByName(ctx context.Context, name string) (s
 	var tenant entity.Tenant
 	if err := r.db.WithContext(ctx).Where("name = ?", name).First(&tenant).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return "", nil
+			return "", exception.NotFound("tenant not found")
 		}
 		return "", exception.Internal("failed to find tenant by name", err)
 	}

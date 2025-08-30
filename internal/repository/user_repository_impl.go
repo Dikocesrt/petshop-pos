@@ -42,6 +42,9 @@ func (r *UserRepositoryIMPL) FindByUsernameAndTenant(username, tenantName string
         First(&user).Error
     
     if err != nil {
+        if err == gorm.ErrRecordNotFound {
+            return nil, exception.NotFound("user not found")
+        }
         return nil, exception.Internal("Failed to find user", err)
     }
     
